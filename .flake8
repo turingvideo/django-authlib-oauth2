@@ -1,0 +1,18 @@
+[flake8]
+ignore = D203,C812,W503,E501
+# T000 Todo note found.
+# T001 print found.
+# F811 redefinition of unused
+# F841 local variable is assigned to but never used
+
+exclude =
+    venv,
+    .git,
+    __pycache__
+
+
+# flake8-expandtab
+tab-width = 4
+
+max-line-length=127
+statistics=1
