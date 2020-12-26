@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="app" class="d-flex justify-content-center align-items-center">
+  <main class="auth-container">
+    <header class="header">
+      <h1>{% trans "SSO" %}</h1>
+    </header>
+    <hr>
+    <div class="auth-inside">
+      <form class="auth-form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">{% trans "Username or email:" %}</label>
+          <div class="input-group mb-4">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+            </div>
+            <input type="text" class="form-control form-control-lg" id="username" name="username" value="{% if form.errors %}{{form.username.value}}{% endif %}" required autofocus>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">{% trans "Password:" %}</label>
+          <div class="input-group mb-4">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            </div>
+            <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+          </div>
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me" value="true">
+          <label class="form-check-label" for="rememberMe">{% trans "Remember me" %}</label>
+          <a class="float-right" href="#">{% trans "Forget password?" %}</a>
+        </div>
+        {% if form.errors %}
+        <p class="alert alert-danger" role="alert">Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        <button type="submit" class="btn btn-primary btn-block btn-lg">{% trans "Sign in" %}</button>
+      </form>
+      <div class="auth-social">
+        <p class="auth-social-title">{% trans "Socials" %}</p>
+        <ul class="list-group list-group-horizontal justify-content-center">
+          <li class="list-group-item">
+            <a href="#"><span class="sr-only">Github</span><i class="bi bi-github"></i></a>
+          </li>
+          <li class="list-group-item">
+            <a href="#"><span class="sr-only">Wechat</span><i class="bi bi-chat"></i></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

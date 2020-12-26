@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="app" class="d-flex justify-content-center align-items-center">
+  <main class="auth-container">
+    {{ grant.client.client_name }}
+    <div class="">
+      <form class="form-inline" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="confirm" value="true">
+        <button type="submit" class="btn btn-primary">{% trans "Approve" %}</button>
+      </form>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% trans "Reject" %}</button>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

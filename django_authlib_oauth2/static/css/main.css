@@ -1,0 +1,19 @@
+html, body { width: 100%; height: 100%; font-size: 14px; }
+#app { min-height: 100%; background-color: #f0f2f5; }
+.auth-container { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px 0 rgba(57,106,255,.05); width: 100%; max-width: 480px; min-height: 600px; padding: 32px; }
+.auth-container .header h1 { font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
+.auth-container .nav { border-bottom: 1px solid #f0f0f0; }
+.auth-container .nav-link { color: #000; padding: 12px 0; margin: 0 16px; }
+.auth-container .nav-link:hover, .auth-container .nav-link:active, .auth-container .nav-link:focus { color: #007bff; }
+.auth-container .nav-link.active { border-bottom: 2px solid #007bff; color: #007bff; }
+.auth-container .auth-inside { padding: 0 16px;}
+.auth-container .auth-form { padding: 20px 0 10px;}
+.auth-container .auth-form .bi { font-size: 1.2rem; }
+.auth-social { text-align: center; margin-top: 2rem; }
+.auth-social .auth-social-title { color: #999; }
+.auth-social .auth-social-title::before { content: "——"; color: #eee; margin: 0 11px; }
+.auth-social .auth-social-title::after { content: "——"; color: #eee; margin: 0 11px; }
+.auth-social .list-group-item { border: 0; padding-top: 0; }
+.auth-social .bi { font-size: 2rem; }
+.auth-social a { color: #999; }
+.auth-social a:hover, .auth-social a:active, .auth-social a:focus { color: #007bff; }
