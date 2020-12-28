@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
 from authlib.oauth2 import OAuth2Request
+from authlib.oauth2.rfc6749.grants import ClientCredentialsGrant
 from authlib.integrations.django_oauth2 import (
     AuthorizationServer as _AuthorizationServer,
     RevocationEndpoint,
@@ -73,5 +74,6 @@ server = AuthorizationServer(models.Client, models.Token)
 server.register_grant(grants.AuthorizationCodeGrant)
 server.register_grant(grants.PasswordGrant)
 server.register_grant(grants.RefreshTokenGrant)
+server.register_grant(ClientCredentialsGrant)
 
 server.register_endpoint(RevocationEndpoint)

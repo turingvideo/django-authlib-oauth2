@@ -117,15 +117,17 @@ class JWTBearerTokenValidator(BearerTokenValidator):
     TOKEN_TYPE = 'bearer'
     token_cls = JWTBearerToken
 
-    def __init__(self, public_key, issuer=None, realm=None, **extra_attributes):
+    def __init__(self, public_key, sub_essential=True, issuer=None, realm=None, **extra_attributes):
         super(JWTBearerTokenValidator, self).__init__(realm, **extra_attributes)
         self.public_key = public_key
         claims_options = {
-            'sub': {'essential': True},
+            # 'sub': {'essential': True},
             'exp': {'essential': True},
             'client_id': {'essential': True},
             'grant_type': {'essential': True},
         }
+        if sub_essential:
+            claims_options['sub'] = {'essential': True}
         if issuer:
             claims_options['iss'] = {'essential': True, 'value': issuer}
         self.claims_options = claims_options
