@@ -18,6 +18,11 @@ class AuthorizationServer(_AuthorizationServer):
 
         default_token_generator = self.config.get('default_token_generator')
         if default_token_generator == 'jwt':
+            token_generator_class = self.config.get('default_token_generator_class')
+            if token_generator_class:
+                token_generator_class = import_string(token_generator_class)
+            else:
+                token_generator_class = jwt.JWTBearerTokenGenerator
             alg = self.config.get('jwt_alg')
             secret_key = self.config.get('jwt_secret_key')
             issuer = self.config.get('jwt_issuer')
@@ -25,7 +30,7 @@ class AuthorizationServer(_AuthorizationServer):
             if not alg or not secret_key:
                 raise RuntimeError('"jwt_alg" and "jwt_secret_key" are required.')
             get_extra_token_data = create_extra_token_data_getter(extra_token_data)
-            default_token_generator = jwt.JWTBearerTokenGenerator(
+            default_token_generator = token_generator_class(
                 secret_key, alg=alg, issuer=issuer,
                 get_extra_token_data=get_extra_token_data,
             )
