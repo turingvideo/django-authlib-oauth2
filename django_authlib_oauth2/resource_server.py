@@ -41,6 +41,7 @@ def build_resource_protector():
     jwt_public_key = config.get('jwt_public_key')
     protector = ResourceProtector()
     if jwt_public_key:
+        jwt_public_key = jwt_public_key.replace('\\n', '\n')
         protector.register_token_validator(JWTBearerTokenValidator(jwt_public_key))
     else:
         protector.register_token_validator(BearerTokenValidator(Token))
