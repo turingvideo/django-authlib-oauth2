@@ -1,7 +1,66 @@
+from django import forms
 from django.contrib import admin
 from . import models
 
 
-admin.site.register(models.Client)
+GRANT_TYPES_CHOICES = (
+    ('authorization_code', 'Authorization Code'),
+    ('password', 'Resource Owner Password'),
+    ('refresh_token', 'Refresh Token'),
+    ('client_credentials', 'Client Credentials'),
+)
+
+RESPONSE_TYPE_CHOICES = (
+    ('code', 'code'),
+    ('token', 'token'),
+)
+
+TOKEN_ENDPOINT_AUTH_METHOD_CHOICES = (
+    ('client_secret_basic', 'HTTP Authentication Basic'),
+    ('client_secret_post', 'HTTP POST'),
+)
+
+
+class JoinSelectMultiple(forms.SelectMultiple):
+
+    def __init__(self, separator=' ', *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.separator = separator
+
+    def value_from_datadict(self, data, files, name):
+        getter = data.get
+        if self.allow_multiple_selected:
+            try:
+                getter = data.getlist
+            except AttributeError:
+                pass
+        val = getter(name)
+        return self.separator.join(val)
+
+    def format_value(self, value):
+        if isinstance(value, str):
+            value = value.split(self.separator)
+        return super().format_value(value)
+
+
+class ClientForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Client
+        fields = '__all__'
+        widgets = {
+            'grant_type': JoinSelectMultiple(choices=GRANT_TYPES_CHOICES),
+            'response_type': JoinSelectMultiple(choices=RESPONSE_TYPE_CHOICES),
+            'token_endpoint_auth_method': JoinSelectMultiple(choices=TOKEN_ENDPOINT_AUTH_METHOD_CHOICES),
+        }
+
+
+@admin.register(models.Client)
+class ClientAdmin(admin.ModelAdmin):
+    form = ClientForm
+    list_display = ('id', 'client_id', 'client_name', 'website')
+    raw_id_fields = ('user',)
+
+
 admin.site.register(models.Token)
 admin.site.register(models.AuthorizationCode)
