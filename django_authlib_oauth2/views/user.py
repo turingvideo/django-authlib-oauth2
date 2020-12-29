@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
-from ..resource_server import require_oauth
+from ..resource_server import require_oauth, require_oauth_user
 from ..auth import TOKEN_COOKIE_NAME, login as token_auth_login
 
 REMEMBER_ME_EXPIRES_IN = settings.SESSION_COOKIE_AGE
@@ -35,6 +35,7 @@ class LoginView(auth_views.LoginView):
 
 
 @require_oauth('profile')
+@require_oauth_user
 def profile(request):
-    user = request.oauth_token.user
+    user = request.user
     return JsonResponse(dict(sub=user.pk, username=user.username))

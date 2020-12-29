@@ -1,7 +1,11 @@
+import functools
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.functional import SimpleLazyObject
+from authlib.oauth2.rfc6749 import UnsupportedTokenTypeError
 from authlib.integrations.django_oauth2 import ResourceProtector as _ResourceProtector, BearerTokenValidator
+from authlib.integrations.django_oauth2.resource_protector import return_error_response
+
 from .authlib_future.jwt import JWTBearerTokenValidator as _JWTBearerTokenValidator, JWTBearerToken
 from .models import Token
 
@@ -51,4 +55,22 @@ def build_resource_protector():
     return protector
 
 
+def require_client_credentials(required=False):
+    def wrapper(f):
+        @functools.wraps(f)
+        def decorated(request, *args, **kwargs):
+            token = getattr(request, 'oauth_token', None)
+            if not token:
+                raise RuntimeError('Token is empty. Did you missing require_oauth() beforehand?')
+
+            if required != (token['grant_type'] == 'client_credentials'):
+                return return_error_response(UnsupportedTokenTypeError('Restricted to %s access' % ('client' if required else 'user')))
+
+            return f(request, *args, **kwargs)
+        return decorated
+    return wrapper
+
+
 require_oauth = build_resource_protector()
+require_oauth_client = require_client_credentials(True)
+require_oauth_user = require_client_credentials(False)
