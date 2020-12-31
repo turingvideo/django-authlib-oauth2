@@ -2,15 +2,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'auth/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'auth/css/bootstrap-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'auth/css/main.css' %}">
   <title>{% block title %}OAuth2{% endblock %}</title>
 </head>
 <body>
   {% block content %}{% endblock %}
-  <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
-  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'auth/js/jquery-3.5.1.slim.min.js' %}"></script>
+  <script src="{% static 'auth/js/bootstrap.bundle.min.js' %}"></script>
   {% block js %}{% endblock %}
 </body>
 </html>
