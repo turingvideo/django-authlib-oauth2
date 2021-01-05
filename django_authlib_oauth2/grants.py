@@ -1,9 +1,7 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
 from authlib.oauth2.rfc6749 import grants
 
 from .models import Token, AuthorizationCode
-
-User = get_user_model()
 
 
 class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
@@ -42,12 +40,7 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
 class PasswordGrant(grants.ResourceOwnerPasswordCredentialsGrant):
 
     def authenticate_user(self, username, password):
-        try:
-            user = User.objects.get(username=username)
-            if user.check_password(password):
-                return user
-        except User.DoesNotExist:
-            return None
+        return authenticate(request=None, username=username, password=password)
 
 
 class RefreshTokenGrant(grants.RefreshTokenGrant):
