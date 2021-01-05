@@ -3,19 +3,47 @@
 
 {% block content %}
 <div id="app" class="d-flex justify-content-center align-items-center">
-  <main class="auth-container">
-    {{ grant.client.client_name }}
-    <div class="">
-      <form class="form-inline" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="confirm" value="true">
-        <button type="submit" class="btn btn-primary">{% trans "Approve" %}</button>
-      </form>
-      <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">{% trans "Reject" %}</button>
-      </form>
+  <main class="auth-container" style="min-height: auto;">
+    <header class="header">
+      <h2>Authorize {{ grant.client.client_name }}</h2>
+    </header>
+    <p>{% if grant.client.website %}
+      <a href="{{ grant.client.website }}" target="_blank" rel="noreferrer" title="{{ grant.client.client_name|safe }}">
+        {{ grant.client.client_name|safe }}
+      </a>{% else %}
+      <span>{{ grant.client.client_name|safe }}</span>{% endif %}
+      wants to access your <b>{{user.username}}</b> account.
+    </p>
+    {% if 'read:profile' in grant.request.scope %}
+    <p>
+      <label>
+        <input type="checkbox" checked disabled>
+        Read profile
+      </label>
+    </p>
+    {% endif %}
+    <hr class="mt-4 mb-4">
+    <div class="form-row mb-2">
+      <div class="col">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-block btn-light">{% trans "Cancel" %}</button>
+        </form>
+      </div>
+      <div class="col">
+        <form class="form-inline" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="confirm" value="true">
+          <button type="submit" class="btn btn-block btn-success">{% trans "Approve" %}</button>
+        </form>
+      </div>
     </div>
+    <p class="text-center">
+      <small>
+        Authorizing will redirect to<br>
+        <b>{{ grant.request.redirect_uri }}</b>
+      </small>
+    </p>
   </main>
 </div>
 {% endblock %}
