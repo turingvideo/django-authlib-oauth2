@@ -40,7 +40,8 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
 class PasswordGrant(grants.ResourceOwnerPasswordCredentialsGrant):
 
     def authenticate_user(self, username, password):
-        return authenticate(request=None, username=username, password=password)
+        request = getattr(self.request, 'integration_request', None)
+        return authenticate(request=request, username=username, password=password)
 
 
 class RefreshTokenGrant(grants.RefreshTokenGrant):

@@ -52,7 +52,9 @@ class AuthorizationServer(_AuthorizationServer):
             # In case of 'application/json; indent=4'
             content_type = content_type.split(';')[0]
         use_json = 'application/json' == content_type
-        return create_oauth_request(request, OAuth2Request, use_json=use_json)
+        oauth2_request = create_oauth_request(request, OAuth2Request, use_json=use_json)
+        oauth2_request.integration_request = request
+        return oauth2_request
 
 
 def create_extra_token_data_getter(extra_token_data):
