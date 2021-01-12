@@ -7,7 +7,7 @@ from authlib.integrations.django_oauth2 import ResourceProtector as _ResourcePro
 from authlib.integrations.django_oauth2.resource_protector import return_error_response
 
 from .authlib_future.jwt import JWTBearerTokenValidator as _JWTBearerTokenValidator, JWTBearerToken
-from .models import Token
+from .models import Client, Token
 
 UserModel = get_user_model()
 
@@ -64,7 +64,14 @@ def require_client_credentials(required=False):
                 raise RuntimeError('Token is empty. Did you missing require_oauth() beforehand?')
 
             if required != (token['grant_type'] == 'client_credentials'):
-                return return_error_response(UnsupportedTokenTypeError('Restricted to %s access' % ('client' if required else 'user')))
+                return return_error_response(
+                    UnsupportedTokenTypeError(
+                        'Restricted to %s access' % ('client' if required else 'user')))
+
+            if required:
+                client_id = token['client_id']
+                request.oauth_client = SimpleLazyObject(
+                    lambda: Client.objects.get(client_id=client_id))
 
             return f(request, *args, **kwargs)
         return decorated
