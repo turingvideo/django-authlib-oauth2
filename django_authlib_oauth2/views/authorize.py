@@ -1,8 +1,11 @@
+import logging
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import Http404
 from django.shortcuts import render
 from django.views import View
 from ..server import server
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorizeView(LoginRequiredMixin, View):
@@ -11,7 +14,8 @@ class AuthorizeView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         try:
             grant = server.validate_consent_request(request, end_user=request.user)
-        except Exception:
+        except Exception as e:
+            logger.warning(e)
             raise Http404()
         context = dict(grant=grant, user=request.user)
         return render(request, self.template_name, context)

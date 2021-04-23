@@ -11,11 +11,19 @@ from authlib.integrations.django_helpers import create_oauth_request
 from . import models, grants
 from .authlib_future import jwt
 
+authorization_server_config = getattr(settings, 'AUTHLIB_OAUTH2_PROVIDER', {})
+jwt_config = {
+    'key': (authorization_server_config.get('jwt_secret_key') or '').replace('\\n', '\n'),
+    'alg': authorization_server_config.get('jwt_alg'),
+    'iss': authorization_server_config.get('jwt_issuer'),
+    'exp': 3600,
+}
+
 
 class AuthorizationServer(_AuthorizationServer):
 
     def __init__(self, client_model, token_model):
-        self.config = getattr(settings, 'AUTHLIB_OAUTH2_PROVIDER', {})
+        self.config = authorization_server_config
 
         default_token_generator = self.config.get('default_token_generator')
         if default_token_generator == 'jwt':
@@ -24,13 +32,12 @@ class AuthorizationServer(_AuthorizationServer):
                 token_generator_class = import_string(token_generator_class)
             else:
                 token_generator_class = jwt.JWTBearerTokenGenerator
-            alg = self.config.get('jwt_alg')
-            secret_key = self.config.get('jwt_secret_key')
-            issuer = self.config.get('jwt_issuer')
+            alg = jwt_config['alg']
+            secret_key = jwt_config['key']
+            issuer = jwt_config['iss']
             extra_token_data = self.config.get('jwt_extra_token_data')
             if not alg or not secret_key:
                 raise RuntimeError('"jwt_alg" and "jwt_secret_key" are required.')
-            secret_key = secret_key.replace('\\n', '\n')
             get_extra_token_data = create_extra_token_data_getter(extra_token_data)
             default_token_generator = token_generator_class(
                 secret_key, alg=alg, issuer=issuer,
@@ -73,7 +80,7 @@ def create_extra_token_data_getter(extra_token_data):
 
 server = AuthorizationServer(models.Client, models.Token)
 
-server.register_grant(grants.AuthorizationCodeGrant)
+server.register_grant(grants.AuthorizationCodeGrant, [grants.OpenIDCode(require_nonce=True, jwt_config=jwt_config)])
 server.register_grant(grants.PasswordGrant)
 server.register_grant(grants.RefreshTokenGrant)
 server.register_grant(ClientCredentialsGrant)

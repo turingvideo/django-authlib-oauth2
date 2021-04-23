@@ -104,6 +104,7 @@ class AuthorizationCode(models.Model, AuthorizationCodeMixin):
     response_type = models.TextField(default='')
     scope = models.TextField(default='', null=True)
     auth_time = models.IntegerField(null=False, default=now_timestamp)
+    nonce = models.CharField(max_length=120, default='', null=True)
 
     def is_expired(self):
         return self.auth_time + 300 < time.time()
@@ -116,3 +117,6 @@ class AuthorizationCode(models.Model, AuthorizationCodeMixin):
 
     def get_auth_time(self):
         return self.auth_time
+
+    def get_nonce(self):
+        return self.nonce
