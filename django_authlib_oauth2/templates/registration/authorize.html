@@ -14,30 +14,36 @@
       <span>{{ grant.client.client_name|safe }}</span>{% endif %}
       wants to access your <b>{{user.username}}</b> account.
     </p>
-    {% if 'read:profile' in grant.request.scope %}
-    <p>
-      <label>
-        <input type="checkbox" checked disabled>
-        Read profile
-      </label>
-    </p>
-    {% endif %}
-    <hr class="mt-4 mb-4">
-    <div class="form-row mb-2">
-      <div class="col">
-        <form method="post">
+    <form method="post">
+      {% if 'openid' in scopes %}<div>
+        <label>
+          <input type="hidden" name="scope_list" value="openid"><input type="checkbox" checked disabled>
+          Get OpenID
+        </label>
+      </div>{% endif %}
+      {% if 'read:profile' in scopes %}<div>
+        <label>
+          <input type="hidden" name="scope_list" value="read:profile"><input type="checkbox" checked disabled>
+          Read profile
+        </label>
+      </div>{% endif %}
+      {% if 'email' in scopes %}<div>
+        <label>
+          <input type="hidden" name="scope_list" value="email"><input type="checkbox" checked disabled>
+          Read email address
+        </label>
+      </div>{% endif %}
+      <hr class="mt-4 mb-4">
+      <div class="form-row mb-2">
+        <div class="col">
           {% csrf_token %}
-          <button type="submit" class="btn btn-block btn-light">{% trans "Cancel" %}</button>
-        </form>
+          <button type="submit" name="action" value="cancel" class="btn btn-block btn-light">{% trans "Cancel" %}</button>
+        </div>
+        <div class="col">
+          <button type="submit" name="action" value="consent" class="btn btn-block btn-success">{% trans "Approve" %}</button>
+        </div>
       </div>
-      <div class="col">
-        <form class="form-inline" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="confirm" value="true">
-          <button type="submit" class="btn btn-block btn-success">{% trans "Approve" %}</button>
-        </form>
-      </div>
-    </div>
+    </form>
     <p class="text-center">
       <small>
         Authorizing will redirect to<br>

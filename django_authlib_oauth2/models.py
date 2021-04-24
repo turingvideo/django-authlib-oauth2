@@ -120,3 +120,22 @@ class AuthorizationCode(models.Model, AuthorizationCodeMixin):
 
     def get_nonce(self):
         return self.nonce
+
+
+class UserConsent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    scope = models.TextField(default='')
+    given_at = models.IntegerField(null=False, default=now_timestamp)
+    expires_in = models.IntegerField(null=False, default=0)
+
+    class Meta:
+        unique_together = ('user', 'client')
+
+    def is_expired(self):
+        return self.given_at + self.expires_in < time.time()
+
+    def contains_scope(self, scope):
+        had = scope_to_list(self.scope)
+        needed = set(scope_to_list(scope))
+        return needed.issubset(had)

@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import forms
 from django.contrib import admin
 from . import models
@@ -60,6 +61,15 @@ class ClientAdmin(admin.ModelAdmin):
     form = ClientForm
     list_display = ('id', 'client_id', 'client_name', 'website')
     raw_id_fields = ('user',)
+
+
+@admin.register(models.UserConsent)
+class UserConsentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'client', 'scope', 'given_at_time', 'expires_in')
+    raw_id_fields = ('user', 'client')
+
+    def given_at_time(self, item):
+        return datetime.fromtimestamp(item.given_at)
 
 
 admin.site.register(models.Token)
