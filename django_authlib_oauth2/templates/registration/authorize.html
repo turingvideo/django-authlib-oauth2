@@ -15,24 +15,40 @@
       wants to access your <b>{{user.username}}</b> account.
     </p>
     <form method="post">
-      {% if 'openid' in scopes %}<div>
-        <label>
-          <input type="hidden" name="scope_list" value="openid"><input type="checkbox" checked disabled>
-          Get OpenID
-        </label>
-      </div>{% endif %}
-      {% if 'read:profile' in scopes %}<div>
-        <label>
-          <input type="hidden" name="scope_list" value="read:profile"><input type="checkbox" checked disabled>
-          Read profile
-        </label>
-      </div>{% endif %}
-      {% if 'email' in scopes %}<div>
-        <label>
-          <input type="hidden" name="scope_list" value="email"><input type="checkbox" checked disabled>
-          Read email address
-        </label>
-      </div>{% endif %}
+      <ul class="list-unstyled">
+        {% if 'read:profile' in scopes %}<li>
+          <label>
+            <input type="hidden" name="scope_list" value="read:profile"><input type="checkbox" checked disabled>
+            Read profile
+          </label>
+        </li>{% endif %}
+        {% if 'openid' in scopes %}<li>
+          <label>
+            <input type="hidden" name="scope_list" value="openid"><input type="checkbox" checked disabled>
+            Get OpenID
+          </label>
+          <ul class="list-unstyled" style="padding-left: 1.5rem;">
+            {% if 'profile' in scopes %}<li>
+              <label>
+                <input type="hidden" name="scope_list" value="profile"><input type="checkbox" checked disabled>
+                Read profile
+              </label>
+            </li>{% endif %}
+            {% if 'email' in scopes %}<li>
+              <label>
+                <input type="hidden" name="scope_list" value="email"><input type="checkbox" checked disabled>
+                Read email address
+              </label>
+            </li>{% endif %}
+            {% if 'phone' in scopes %}<li>
+              <label>
+                <input type="hidden" name="scope_list" value="phone"><input type="checkbox" checked disabled>
+                Read phone number
+              </label>
+            </li>{% endif %}
+          </ul>
+        </li>{% endif %}
+      </ul>
       <hr class="mt-4 mb-4">
       <div class="form-row mb-2">
         <div class="col">

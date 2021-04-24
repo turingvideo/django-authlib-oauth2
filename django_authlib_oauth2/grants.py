@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from authlib.oauth2.rfc6749 import grants
+from authlib.oauth2.rfc6749.util import scope_to_list
 from authlib.oidc.core import OpenIDCode as _OpenIDCode, UserInfo
 
 from .models import Token, AuthorizationCode
@@ -99,13 +100,42 @@ class OpenIDCode(_OpenIDCode):
         return self.jwt_config
 
     def generate_user_info(self, user, scope):  # pragma: no cover
-        user_info = UserInfo(sub=str(user.pk), name=self.get_user_name(user))
-        if 'email' in scope:
-            user_info['email'] = user.email
+        user_info = UserInfo(sub=str(user.pk))
+
+        scopes = set(scope_to_list(scope))
+        for claim_scope, claims in _user_claims_mapping.items():
+            if claim_scope not in scopes:
+                continue
+            for key, fields in claims.items():
+                if isinstance(fields, str):
+                    fields = fields.split()
+                for field in fields:
+                    if hasattr(user, field):
+                        val = getattr(user, field)
+                        if val is None:
+                            continue
+                        if not isinstance(val, (int, float, bool, str)):
+                            val = str(val)
+                        user_info[key] = val
+
         return user_info
 
-    def get_user_name(self, user):
-        if hasattr(user, 'name'):
-            return user.name
-        if hasattr(user, 'display_name'):
-            return user.display_name
+
+_user_claims_mapping = {
+    'profile': {
+        'name': ('name', 'display_name'),
+        'preferred_username': 'username',
+        'gender': 'gender',
+    },
+    'email': {
+        'email': 'email',
+        'email_verified': ('email_verified', 'is_email_verified'),
+    },
+    'phone': {
+        'phone_number': ('phone_number', 'phone'),
+        'phone_number_verified': (
+            'phone_number_verified', 'is_phone_number_verified',
+            'phone_verified', 'is_phone_verified',
+        ),
+    },
+}
