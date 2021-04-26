@@ -65,11 +65,12 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(models.UserConsent)
 class UserConsentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'client', 'scope', 'given_at_time', 'expires_in')
+    list_display = ('id', 'user', 'client', 'scope', 'given_at_time', 'expires_in', 'is_expired')
     raw_id_fields = ('user', 'client')
 
-    def given_at_time(self, item):
-        return datetime.fromtimestamp(item.given_at)
+    @admin.display(boolean=True)
+    def is_expired(self, item):
+        return item.is_expired()
 
 
 admin.site.register(models.Token)

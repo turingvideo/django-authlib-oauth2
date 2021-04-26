@@ -1,4 +1,7 @@
 import time
+from datetime import datetime
+from pytz import UTC
+
 from django.conf import settings
 from django.db import models
 from authlib.oauth2.rfc6749 import AuthorizationCodeMixin, ClientMixin, TokenMixin
@@ -131,6 +134,14 @@ class UserConsent(models.Model):
 
     class Meta:
         unique_together = ('user', 'client')
+
+    @property
+    def given_at_time(self):
+        return datetime.fromtimestamp(self.given_at).replace(tzinfo=UTC)
+
+    @property
+    def expires_at_time(self):
+        return datetime.fromtimestamp(self.given_at + self.expires_in).replace(tzinfo=UTC)
 
     def is_expired(self):
         return self.given_at + self.expires_in < time.time()

@@ -77,7 +77,7 @@ class OpenIDCode(_OpenIDCode):
     def exists_nonce(self, nonce, request):
         try:
             AuthorizationCode.objects.get(
-                client_id=request.client_id, nonce=nonce
+                client_id=request.client_id, nonce=nonce,
             )
             return True
         except AuthorizationCode.DoesNotExist:
