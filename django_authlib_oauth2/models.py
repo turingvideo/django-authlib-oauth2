@@ -32,6 +32,7 @@ class Client(models.Model, ClientMixin):
 
     logo = models.URLField(blank=True, default='')
     website = models.URLField(blank=True, default='')
+    description = models.TextField(blank=True, default='')
 
     def get_client_id(self):
         return self.client_id
