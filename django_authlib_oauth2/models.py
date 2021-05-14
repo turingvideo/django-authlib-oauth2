@@ -4,6 +4,7 @@ from pytz import UTC
 
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 from authlib.oauth2.rfc6749 import AuthorizationCodeMixin, ClientMixin, TokenMixin
 from authlib.oauth2.rfc6749.util import scope_to_list, list_to_scope
 
@@ -33,6 +34,9 @@ class Client(models.Model, ClientMixin):
     logo = models.URLField(blank=True, default='')
     website = models.URLField(blank=True, default='')
     description = models.TextField(blank=True, default='')
+
+    def __str__(self) -> str:
+        return self.client_id
 
     def get_client_id(self):
         return self.client_id
@@ -96,6 +100,17 @@ class Token(models.Model, TokenMixin):
     def get_expires_at(self):
         return self.issued_at + self.expires_in
 
+    @cached_property
+    def issued_at_time(self):
+        return datetime.fromtimestamp(self.issued_at).replace(tzinfo=UTC)
+
+    @cached_property
+    def expires_at_time(self):
+        return datetime.fromtimestamp(self.get_expires_at()).replace(tzinfo=UTC)
+
+    def is_expired(self):
+        return self.get_expires_at() < time.time()
+
 
 class AuthorizationCode(models.Model, AuthorizationCodeMixin):
     user = models.ForeignKey(
@@ -136,11 +151,11 @@ class UserConsent(models.Model):
     class Meta:
         unique_together = ('user', 'client')
 
-    @property
+    @cached_property
     def given_at_time(self):
         return datetime.fromtimestamp(self.given_at).replace(tzinfo=UTC)
 
-    @property
+    @cached_property
     def expires_at_time(self):
         return datetime.fromtimestamp(self.given_at + self.expires_in).replace(tzinfo=UTC)
 

@@ -1,5 +1,8 @@
+from datetime import datetime
+from pytz import UTC
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from . import models
 
 
@@ -67,10 +70,29 @@ class UserConsentAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'client', 'scope', 'given_at_time', 'expires_in', 'is_expired')
     raw_id_fields = ('user', 'client')
 
+    @admin.display(ordering='given_at')
+    def given_at_time(self, item):
+        return item.given_at_time
+
     @admin.display(boolean=True)
     def is_expired(self, item):
         return item.is_expired()
 
 
-admin.site.register(models.Token)
-admin.site.register(models.AuthorizationCode)
+@admin.register(models.Token)
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'client_id', 'scope', 'issued_at_time', 'expires_in', 'is_expired', 'revoked')
+    search_fields = ['client_id'] + ['user__' + f for f in UserAdmin.search_fields]
+
+    @admin.display(boolean=True)
+    def is_expired(self, item):
+        return item.is_expired()
+
+
+@admin.register(models.AuthorizationCode)
+class AuthorizationCodeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'client_id', 'time')
+    search_fields = ['client_id'] + ['user__' + f for f in UserAdmin.search_fields]
+
+    def time(self, item):
+        return datetime.fromtimestamp(item.auth_time).replace(tzinfo=UTC)
