@@ -80,7 +80,7 @@ def create_extra_token_data_getter(extra_token_data):
 
 server = AuthorizationServer(models.Client, models.Token)
 
-server.register_grant(grants.AuthorizationCodeGrant, [grants.OpenIDCode(require_nonce=True, jwt_config=jwt_config)])
+server.register_grant(grants.AuthorizationCodeGrant, [grants.OpenIDCode(require_nonce=False, jwt_config=jwt_config)])
 server.register_grant(grants.PasswordGrant)
 server.register_grant(grants.RefreshTokenGrant)
 server.register_grant(ClientCredentialsGrant)
