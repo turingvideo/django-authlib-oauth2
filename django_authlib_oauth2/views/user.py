@@ -1,7 +1,8 @@
+import json
 from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import views as auth_views
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from ..resource_server import require_oauth, require_oauth_user
 from ..auth import TOKEN_COOKIE_NAME, login as token_auth_login
@@ -38,4 +39,9 @@ class LoginView(auth_views.LoginView):
 @require_oauth_user
 def profile(request):
     user = request.user
-    return JsonResponse(dict(sub=user.pk, username=user.username))
+    userinfo = {
+        'sub': user.pk,
+        'username': user.username,
+        'groups': [g.name for g in user.groups.all()],
+    }
+    return HttpResponse(json.dumps(userinfo), content_type='application/json')
