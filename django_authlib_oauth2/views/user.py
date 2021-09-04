@@ -40,7 +40,7 @@ class LoginView(auth_views.LoginView):
 def profile(request):
     user = request.user
     userinfo = {
-        'sub': user.pk,
+        'sub': str(user.pk),
         'username': user.username,
         'groups': [g.name for g in user.groups.all()],
     }
