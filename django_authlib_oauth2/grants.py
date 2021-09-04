@@ -114,11 +114,20 @@ class OpenIDCode(_OpenIDCode):
                         val = getattr(user, field)
                         if val is None:
                             continue
-                        if not isinstance(val, (int, float, bool, str)):
-                            val = str(val)
-                        user_info[key] = val
+                        user_info[key] = _normalize_value(val)
+                        break
 
         return user_info
+
+
+def _normalize_value(val):
+    if val is None:
+        return None
+    if isinstance(val, (list, tuple)):
+        return [_normalize_value(v) for v in val]
+    if not isinstance(val, (int, float, bool, str)):
+        return str(val)
+    return val
 
 
 _user_claims_mapping = {
@@ -137,5 +146,8 @@ _user_claims_mapping = {
             'phone_number_verified', 'is_phone_number_verified',
             'phone_verified', 'is_phone_verified',
         ),
+    },
+    'groups': {
+        'groups': 'group_names',
     },
 }
