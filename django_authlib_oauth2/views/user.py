@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from ..resource_server import require_oauth, require_oauth_user
 from ..auth import TOKEN_COOKIE_NAME, login as token_auth_login
+from ..grants import generate_user_info
 
 REMEMBER_ME_EXPIRES_IN = settings.SESSION_COOKIE_AGE
 
@@ -39,9 +40,7 @@ class LoginView(auth_views.LoginView):
 @require_oauth_user
 def profile(request):
     user = request.user
-    userinfo = {
-        'sub': str(user.pk),
-        'username': user.username,
-        'groups': [g.name for g in user.groups.all()],
-    }
+    token = getattr(request, 'oauth_token', None)
+    scope = token.get_scope() if token else None
+    userinfo = generate_user_info(user, scope)
     return HttpResponse(json.dumps(userinfo), content_type='application/json')

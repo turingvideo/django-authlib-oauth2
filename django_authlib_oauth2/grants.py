@@ -100,24 +100,30 @@ class OpenIDCode(_OpenIDCode):
         return self.jwt_config
 
     def generate_user_info(self, user, scope):  # pragma: no cover
-        user_info = UserInfo(sub=str(user.pk))
+        return generate_user_info(user, scope)
 
-        scopes = set(scope_to_list(scope))
-        for claim_scope, claims in _user_claims_mapping.items():
-            if claim_scope not in scopes:
-                continue
-            for key, fields in claims.items():
-                if isinstance(fields, str):
-                    fields = fields.split()
-                for field in fields:
-                    if hasattr(user, field):
-                        val = getattr(user, field)
-                        if val is None:
-                            continue
-                        user_info[key] = _normalize_value(val)
-                        break
 
+def generate_user_info(user, scope):
+    user_info = UserInfo(sub=str(user.pk))
+    if not scope:
         return user_info
+
+    scopes = set(scope_to_list(scope))
+    for claim_scope, claims in _user_claims_mapping.items():
+        if claim_scope not in scopes:
+            continue
+        for key, fields in claims.items():
+            if isinstance(fields, str):
+                fields = fields.split()
+            for field in fields:
+                if hasattr(user, field):
+                    val = getattr(user, field)
+                    if val is None:
+                        continue
+                    user_info[key] = _normalize_value(val)
+                    break
+
+    return user_info
 
 
 def _normalize_value(val):
