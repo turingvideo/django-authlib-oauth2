@@ -46,6 +46,12 @@
                 Read phone number
               </label>
             </li>{% endif %}
+            {% if 'groups' in scopes %}<li>
+              <label>
+                <input type="hidden" name="scope_list" value="groups"><input type="checkbox" checked disabled>
+                Read groups
+              </label>
+            </li>{% endif %}
           </ul>
         </li>{% endif %}
       </ul>
