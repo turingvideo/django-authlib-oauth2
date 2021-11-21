@@ -18,14 +18,14 @@ class JWTBearerTokenGenerator(object):
         class MyJWTBearerGrant(JWTBearerGrant):
             def save_token(self, token):
                 pass
-    :param secret_key: private RSA key in bytes, JWK or JWK Set.
+    :param key: private RSA key in bytes, JWK or JWK Set.
     :param issuer: a string or URI of the issuer
     :param alg: ``alg`` to use in JWT
     """
     DEFAULT_EXPIRES_IN = 3600
 
-    def __init__(self, secret_key, issuer=None, alg='RS256', get_extra_token_data=None):
-        self.secret_key = secret_key
+    def __init__(self, key, issuer=None, alg='RS256', get_extra_token_data=None):
+        self.key = key
         self.issuer = issuer
         self.alg = alg
         self.get_extra_token_data = get_extra_token_data
@@ -54,7 +54,9 @@ class JWTBearerTokenGenerator(object):
             'exp': issued_at + expires_in,
             'client_id': client.get_client_id(),
         }
-        if self.issuer:
+        if hasattr(client, 'iss'):
+            data['iss'] = getattr(client, 'iss')
+        elif self.issuer:
             data['iss'] = self.issuer
         if user:
             data['sub'] = self.get_user_id(user)
@@ -76,7 +78,12 @@ class JWTBearerTokenGenerator(object):
         if not expires_in:
             expires_in = self.DEFAULT_EXPIRES_IN
         token_data = self.get_token_data(grant_type, client, user, scope, expires_in)
-        access_token = jwt.encode({'alg': self.alg}, token_data, key=self.secret_key, check=False)
+        header = {
+            'alg': getattr(client, 'kty', self.alg),
+        }
+        if hasattr(client, 'kid'):
+            header['kid'] = getattr(client, 'kid')
+        access_token = jwt.encode(header, token_data, key=self.key, check=False)
         token = {
             'token_type': 'Bearer',
             'access_token': to_native(access_token),

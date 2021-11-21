@@ -1,15 +1,23 @@
 import functools
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.functional import SimpleLazyObject
+from django.utils.module_loading import import_string
 from authlib.oauth2.rfc6749 import UnsupportedTokenTypeError
 from authlib.integrations.django_oauth2 import ResourceProtector as _ResourceProtector, BearerTokenValidator
 from authlib.integrations.django_oauth2.resource_protector import return_error_response
 
 from .authlib_future.jwt import JWTBearerTokenValidator as _JWTBearerTokenValidator, JWTBearerToken
+from .config import (
+    resource_server_config,
+    resource_server_jwt_config as jwt_config,
+)
 from .models import Client, Token
 
 UserModel = get_user_model()
+
+jwt_key_provider = None
+if 'jwt_key_provider' in resource_server_config:
+    jwt_key_provider = import_string(resource_server_config['jwt_key_provider'])
 
 
 class JWTBearerTokenValidator(_JWTBearerTokenValidator):
@@ -41,14 +49,12 @@ class ResourceProtector(_ResourceProtector):
 
 
 def build_resource_protector():
-    config = getattr(settings, 'AUTHLIB_RESOURCE_SERVER', {})
-    jwt_public_key = config.get('jwt_public_key')
     protector = ResourceProtector()
-    if jwt_public_key:
-        jwt_issuer = config.get('jwt_issuer')
-        jwt_public_key = jwt_public_key.replace('\\n', '\n')
+    jwt_public_key = jwt_config.get('public_key')
+    if jwt_key_provider or jwt_public_key:
         protector.register_token_validator(JWTBearerTokenValidator(
-            jwt_public_key, issuer=jwt_issuer, sub_essential=False,
+            jwt_key_provider or jwt_public_key,
+            sub_essential=False,
         ))
     else:
         protector.register_token_validator(BearerTokenValidator(Token))

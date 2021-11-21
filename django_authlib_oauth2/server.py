@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.utils.module_loading import import_string
 from authlib.oauth2 import OAuth2Request
 from authlib.oauth2.rfc6749.grants import ClientCredentialsGrant
@@ -10,14 +9,14 @@ from authlib.integrations.django_helpers import create_oauth_request
 
 from . import models, grants
 from .authlib_future import jwt
+from .config import (
+    authorization_server_config,
+    authorization_server_jwt_config as jwt_config,
+)
 
-authorization_server_config = getattr(settings, 'AUTHLIB_OAUTH2_PROVIDER', {})
-jwt_config = {
-    'key': (authorization_server_config.get('jwt_secret_key') or '').replace('\\n', '\n'),
-    'alg': authorization_server_config.get('jwt_alg'),
-    'iss': authorization_server_config.get('jwt_issuer'),
-    'exp': 3600,
-}
+jwt_key_provider = None
+if 'jwt_key_provider' in authorization_server_config:
+    jwt_key_provider = import_string(authorization_server_config['jwt_key_provider'])
 
 
 class AuthorizationServer(_AuthorizationServer):
@@ -40,7 +39,8 @@ class AuthorizationServer(_AuthorizationServer):
                 raise RuntimeError('"jwt_alg" and "jwt_secret_key" are required.')
             get_extra_token_data = create_extra_token_data_getter(extra_token_data)
             default_token_generator = token_generator_class(
-                secret_key, alg=alg, issuer=issuer,
+                jwt_key_provider or secret_key,
+                alg=alg, issuer=issuer,
                 get_extra_token_data=get_extra_token_data,
             )
 
@@ -52,6 +52,11 @@ class AuthorizationServer(_AuthorizationServer):
             client_model, token_model,
             generate_token=default_token_generator,
         )
+
+        client_auth_class = self.config.get('client_auth_class')
+        if client_auth_class:
+            client_auth_class = import_string(client_auth_class)
+            self._client_auth = client_auth_class()
 
     def create_oauth2_request(self, request):
         content_type = request.content_type
