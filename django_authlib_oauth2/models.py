@@ -17,6 +17,7 @@ class Client(models.Model, ClientMixin):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        null=True, blank=True,
     )
     client_id = models.CharField(max_length=48, unique=True, db_index=True)
     client_secret = models.CharField(max_length=48, blank=True)
