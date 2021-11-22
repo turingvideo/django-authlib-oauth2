@@ -50,10 +50,10 @@ class ResourceProtector(_ResourceProtector):
 
 def build_resource_protector():
     protector = ResourceProtector()
-    jwt_public_key = jwt_config.get('public_key')
-    if jwt_key_provider or jwt_public_key:
+    jwt_verifying_key = jwt_config.get('verifying_key')
+    if jwt_key_provider or jwt_verifying_key:
         protector.register_token_validator(JWTBearerTokenValidator(
-            jwt_key_provider or jwt_public_key,
+            jwt_key_provider or jwt_verifying_key,
             sub_essential=False,
         ))
     else:

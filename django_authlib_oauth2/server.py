@@ -32,14 +32,14 @@ class AuthorizationServer(_AuthorizationServer):
             else:
                 token_generator_class = jwt.JWTBearerTokenGenerator
             alg = jwt_config['alg']
-            secret_key = jwt_config['key']
+            signing_key = jwt_config['key']
             issuer = jwt_config['iss']
             extra_token_data = self.config.get('jwt_extra_token_data')
-            if not alg or not secret_key:
-                raise RuntimeError('"jwt_alg" and "jwt_secret_key" are required.')
+            if not alg or not signing_key:
+                raise RuntimeError('"jwt_alg" and "jwt_signing_key" are required.')
             get_extra_token_data = create_extra_token_data_getter(extra_token_data)
             default_token_generator = token_generator_class(
-                jwt_key_provider or secret_key,
+                jwt_key_provider or signing_key,
                 alg=alg, issuer=issuer,
                 get_extra_token_data=get_extra_token_data,
             )

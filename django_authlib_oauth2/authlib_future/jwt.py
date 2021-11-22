@@ -79,7 +79,7 @@ class JWTBearerTokenGenerator(object):
             expires_in = self.DEFAULT_EXPIRES_IN
         token_data = self.get_token_data(grant_type, client, user, scope, expires_in)
         header = {
-            'alg': getattr(client, 'kty', self.alg),
+            'alg': getattr(client, 'alg', self.alg),
         }
         if hasattr(client, 'kid'):
             header['kid'] = getattr(client, 'kid')
